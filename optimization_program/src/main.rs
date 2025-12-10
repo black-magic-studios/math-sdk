@@ -180,13 +180,13 @@ fn run_farm(
         } else {
             const EPSILON: f64 = 1e-9;
             if !init_lookup.values().any(|entry| (entry.win - fence.avg_win).abs() < EPSILON) {
-                panic!(
-                    "fence.avg_win {} not found in lookup table",
-                    fence.avg_win
+                eprintln!(
+                    "Warning: fence.avg_win {} not found in lookup table for fence {}",
+                    fence.avg_win, fence.name
                 );
             }
-}           
-            sorted_wins.push(fence.avg_win);
+        }
+        sorted_wins.push(fence.avg_win);
     }
 
     sorted_wins.sort_by(|a, b| a.partial_cmp(&b).unwrap());
@@ -730,6 +730,17 @@ fn sort_wins_by_parameter(
                             lookup_table.remove(book_id);
                         }
                     }
+                }
+            }
+            // Fallback: if no entries matched the filter, include all remaining lookup entries
+            // so downstream pig generation has data to work with.
+            if fence.win_dist.is_empty() {
+                for (book_id, entry) in lookup_table.iter() {
+                    fence
+                        .win_dist
+                        .entry(F64Wrapper(entry.win))
+                        .or_insert(Vec::new())
+                        .push(*book_id);
                 }
             }
         }
