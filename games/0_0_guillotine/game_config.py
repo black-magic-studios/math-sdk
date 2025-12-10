@@ -70,7 +70,10 @@ class GameConfig(Config):
         reels = {"BR0": "BR0.csv", "FR0": "FR0.csv", "FRWCAP": "FRWCAP.csv"}
         self.reels = {}
         for r, f in reels.items():
-            self.reels[r] = self.read_reels_csv(os.path.join(self.reels_path, f))
+            reel_data = self.read_reels_csv(os.path.join(self.reels_path, f))
+            # Enforce: no wilds on reel 1 for any reel strip
+            reel_data[0] = [sym for sym in reel_data[0] if sym not in self.special_symbols.get("wild", [])]
+            self.reels[r] = reel_data
 
         self.bet_modes = [
             BetMode(
