@@ -8,7 +8,8 @@ pub struct SetupConfig {
    pub num_pigs_per_fence:u32,
    pub threads_for_fence_construction:u32,
    pub threads_for_show_construction:u32,
-   pub score_type:String,
+   #[serde(rename = "score_type")]
+   pub _score_type:String,
    pub test_spins:Vec<u32>,
    pub test_spins_weights:Vec<f64>,
    pub simulation_trials:u32,

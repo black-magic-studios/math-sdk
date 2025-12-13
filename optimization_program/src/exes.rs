@@ -20,8 +20,10 @@ pub struct SearchKey {
 pub struct SearchResult {
     // Each key maps to a vector of serde_json::Value to accommodate different types.
     pub search: Vec<SearchKey>,
-    pub timesTriggered: u32,
-    pub bookIds: Vec<u32>,
+    #[serde(rename = "timesTriggered")]
+    pub times_triggered: u32,
+    #[serde(rename = "bookIds")]
+    pub book_ids: Vec<u32>,
 }
 
 // FORCE RESULT STRUCTS

@@ -1,4 +1,14 @@
 """Main file for generating results for Guillotine (ways-pay) game."""
+
+import sys
+from pathlib import Path
+
+# Ensure workspace packages (e.g., `optimization_program`) are imported from the
+# repo checkout rather than any older installed copies in the venv.
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+sys.path.insert(0, str(_REPO_ROOT))
+sys.path.insert(0, str(_REPO_ROOT / "games" / "0_0_guillotine"))
+
 from gamestate import GameState
 from game_config import GameConfig
 from game_optimization import OptimizationSetup
@@ -10,50 +20,76 @@ from src.write_data.write_configs import generate_configs
 
 if __name__ == "__main__":
 
-    num_threads = 10
-    rust_threads = 20
-    batching_size = 50000
-    compression = True
-    profiling = False
+    NUM_THREADS = 10
+    RUST_THREADS = 20
+    BATCHING_SIZE = 50000
+    COMPRESSION = True
+    PROFILING = False
 
+    # ---------------------------------------------------------
+    # Add separate simulation amounts per mode
+    # ---------------------------------------------------------
     num_sim_args = {
-        "base": int(1e4),
-        "bonus": int(1e4),
+        "base": int(10000),
+        "fs3": int(10000),   # 3-scatter free spins
+        "fs4": int(10000),   # 4-scatter upgraded free spins
+        "fs5": int(10000),   # 5-scatter super free spins
     }
 
     run_conditions = {
         "run_sims": True,
         "run_optimization": True,
         "run_analysis": True,
-        "run_format_checks": True,
+        "run_format_checks": False,
     }
-    target_modes = ["base", "bonus"]
 
+    # ---------------------------------------------------------
+    # Modes to target: base + bonuses (3,4,5 scatters)
+    # ---------------------------------------------------------
+    target_modes = ["base", "fs3", "fs4", "fs5"]
+
+    # ---------------------------------------------------------
+    # Initialize config + gamestate
+    # ---------------------------------------------------------
     config = GameConfig()
     gamestate = GameState(config)
-    if run_conditions["run_optimization"] or run_conditions["run_analysis"]:
-        optimization_setup_class = OptimizationSetup(config)
 
+    if run_conditions["run_optimization"] or run_conditions["run_analysis"]:
+        _optimization_setup_class = OptimizationSetup(config)
+
+    # ---------------------------------------------------------
+    # SIMULATION: Create books for all modes
+    # ---------------------------------------------------------
     if run_conditions["run_sims"]:
         create_books(
             gamestate,
             config,
             num_sim_args,
-            batching_size,
-            num_threads,
-            compression,
-            profiling,
+            BATCHING_SIZE,
+            NUM_THREADS,
+            COMPRESSION,
+            PROFILING,
         )
 
+    # Write out configs
     generate_configs(gamestate)
 
+    # ---------------------------------------------------------
+    # OPTIMIZATION: run Rust optimizer across all new modes
+    # ---------------------------------------------------------
     if run_conditions["run_optimization"]:
-        OptimizationExecution().run_all_modes(config, target_modes, rust_threads)
+        OptimizationExecution().run_all_modes(config, target_modes, RUST_THREADS)
         generate_configs(gamestate)
 
+    # ---------------------------------------------------------
+    # ANALYSIS: generate stat sheets per mode
+    # ---------------------------------------------------------
     if run_conditions["run_analysis"]:
         custom_keys = [{"symbol": "scatter"}]
         create_stat_sheet(gamestate, custom_keys=custom_keys)
 
+    # ---------------------------------------------------------
+    # FORMAT + SANITY CHECKS
+    # ---------------------------------------------------------
     if run_conditions["run_format_checks"]:
         execute_all_tests(config)

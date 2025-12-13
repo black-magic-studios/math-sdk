@@ -80,6 +80,7 @@ class GeneralGameState(ABC):
         self.fs = 0
         self.wincap_triggered = False
         self.triggered_freegame = False
+        self.fs_trigger_count = 0
         self.gametype = self.config.basegame_type
         self.repeat = False
         self.anticipation = [0] * self.config.num_reels
