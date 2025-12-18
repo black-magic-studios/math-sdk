@@ -20,7 +20,7 @@ class GameConfig(Config):
         self.game_id = "0_0_guillotine"
         self.provider_number = 0
         self.working_name = "Guillotine"
-        self.wincap = 5000
+        self.wincap = 20000
         self.win_type = "lines"
         # Total RTP target. Mode contribution targets below are normalized to sum to this.
         self.rtp = 0.96

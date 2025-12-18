@@ -259,13 +259,51 @@ class GeneralGameState(ABC):
         self.recorded_events = {}
         self.betmode = betmode
         self.num_sims = num_sims
+
+        max_round_win = 0.0
+        total_triggers = 0
+        trigger_counts = {"fs3": 0, "fs4": 0, "fs5": 0, "other": 0}
         for sim in range(
             thread_index * num_sims + (total_threads * num_sims) * repeat_count,
             (thread_index + 1) * num_sims + (total_threads * num_sims) * repeat_count,
         ):
             self.criteria = sim_to_criteria[sim]
             self.run_spin(sim, simulation_seeds[sim])
+
+            # --- Diagnostics (per-thread) ---
+            # Max win = highest single betting-round win observed by this thread.
+            # For base mode, this includes any triggered free spins because the SDK
+            # treats the feature as part of the same betting round.
+            if hasattr(self, "final_win"):
+                max_round_win = max(max_round_win, float(getattr(self, "final_win", 0.0) or 0.0))
+
+            # Track how many times a feature was triggered and which tier.
+            # Guillotine sets `triggered_freegame` and `fs_trigger_count` on entry.
+            if bool(getattr(self, "triggered_freegame", False)):
+                total_triggers += 1
+                fs_count = getattr(self, "fs_trigger_count", None)
+                if fs_count is None:
+                    trigger_counts["other"] += 1
+                else:
+                    try:
+                        fs_count_int = int(fs_count)
+                    except (TypeError, ValueError):
+                        fs_count_int = -1
+
+                    if fs_count_int >= 5:
+                        trigger_counts["fs5"] += 1
+                    elif fs_count_int == 4:
+                        trigger_counts["fs4"] += 1
+                    elif fs_count_int == 3:
+                        trigger_counts["fs3"] += 1
+                    else:
+                        trigger_counts["other"] += 1
         mode_cost = self.get_current_betmode().get_cost()
+
+        triggers_summary = (
+            f"triggers={total_triggers} "
+            f"[fs3={trigger_counts['fs3']}, fs4={trigger_counts['fs4']}, fs5={trigger_counts['fs5']}, other={trigger_counts['other']}]"
+        )
 
         print(
             "Thread " + str(thread_index),
@@ -273,6 +311,8 @@ class GeneralGameState(ABC):
             round(self.win_manager.total_cumulative_wins / (num_sims * mode_cost), 3),
             "RTP.",
             f"[baseGame: {round(self.win_manager.cumulative_base_wins/(num_sims*mode_cost), 3)}, freeGame: {round(self.win_manager.cumulative_free_wins/(num_sims*mode_cost), 3)}]",
+            f"[maxWin: {round(max_round_win, 2)}]",
+            f"[{triggers_summary}]",
             flush=True,
         )
 

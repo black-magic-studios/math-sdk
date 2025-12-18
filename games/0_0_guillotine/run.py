@@ -30,7 +30,7 @@ if __name__ == "__main__":
     # Add separate simulation amounts per mode
     # ---------------------------------------------------------
     num_sim_args = {
-        "base": int(10000),
+        "base": int(100000),
         "fs3": int(10000),   # 3-scatter free spins
         "fs4": int(10000),   # 4-scatter upgraded free spins
         "fs5": int(10000),   # 5-scatter super free spins
