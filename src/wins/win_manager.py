@@ -54,7 +54,9 @@ class WinManager:
         """Accumulate total wins for a given betting round."""
         base = min(self.max_allowed_win, self.basegame_wins)
         free = min(self.max_allowed_win, self.freegame_wins)
-        self.total_cumulative_wins += base + free
+        # Cap the combined win to the max allowed (wincap)
+        combined_win = min(self.max_allowed_win, base + free)
+        self.total_cumulative_wins += combined_win
         self.cumulative_base_wins += base
         self.cumulative_free_wins += free
 

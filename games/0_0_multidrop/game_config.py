@@ -1,4 +1,4 @@
-"""Biohazard game configuration file/setup"""
+"""Multidrop game configuration file/setup"""
 
 import os
 from src.config.config import Config
@@ -7,7 +7,7 @@ from src.config.betmode import BetMode
 
 
 class GameConfig(Config):
-    """Singleton biohazard game configuration class."""
+    """Singleton multidrop game configuration class."""
 
     _instance = None
 
@@ -18,12 +18,12 @@ class GameConfig(Config):
 
     def __init__(self):
         super().__init__()
-        self.game_id = "0_0_biohazard"
+        self.game_id = "0_0_multidrop"
         self.provider_number = 0
-        self.working_name = "biohazard"
-        self.wincap = 10000.0
+        self.working_name = "Multidrop"
+        self.wincap = 5000.0
         self.win_type = "cluster"
-        self.rtp = 0.9600
+        self.rtp = 0.9700
         self.construct_paths()
 
         # Game Dimensions
@@ -33,38 +33,38 @@ class GameConfig(Config):
         # Board and Symbol Properties
         t1, t2, t3, t4 = (5, 5), (6, 8), (9, 12), (13, 36)
         pay_group = {
-            (t1, "H1"): 0.5,
-            (t2, "H1"): 1.25,
-            (t3, "H1"): 2.5,
-            (t4, "H1"): 6.0,
-            (t1, "H2"): 0.2,
-            (t2, "H2"): 0.5,
-            (t3, "H2"): 1.0,
-            (t4, "H2"): 4.0,
-            (t1, "H3"): 0.13,
-            (t2, "H3"): 0.32,
-            (t3, "H3"): 0.7,
-            (t4, "H3"): 3.0,
-            (t1, "H4"): 0.1,
-            (t2, "H4"): 0.25,
-            (t3, "H4"): 0.6,
-            (t4, "H4"): 2.0,
-            (t1, "L1"): 0.06,
-            (t2, "L1"): 0.15,
-            (t3, "L1"): 0.4,
-            (t4, "L1"): 1.0,
-            (t1, "L2"): 0.04,
-            (t2, "L2"): 0.12,
-            (t3, "L2"): 0.35,
-            (t4, "L2"): 0.8,
-            (t1, "L3"): 0.02,
-            (t2, "L3"): 0.08,
-            (t3, "L3"): 0.25,
-            (t4, "L3"): 0.5,
-            (t1, "L4"): 0.01,
-            (t2, "L4"): 0.05,
-            (t3, "L4"): 0.15,
-            (t4, "L4"): 0.4,
+            (t1, "H1"): 5.0,
+            (t2, "H1"): 12.5,
+            (t3, "H1"): 25.0,
+            (t4, "H1"): 60.0,
+            (t1, "H2"): 2.0,
+            (t2, "H2"): 5.0,
+            (t3, "H2"): 10.0,
+            (t4, "H2"): 40.0,
+            (t1, "H3"): 1.3,
+            (t2, "H3"): 3.2,
+            (t3, "H3"): 7.0,
+            (t4, "H3"): 30.0,
+            (t1, "H4"): 1.0,
+            (t2, "H4"): 2.5,
+            (t3, "H4"): 6.0,
+            (t4, "H4"): 20.0,
+            (t1, "L1"): 0.6,
+            (t2, "L1"): 1.5,
+            (t3, "L1"): 4.0,
+            (t4, "L1"): 10.0,
+            (t1, "L2"): 0.4,
+            (t2, "L2"): 1.2,
+            (t3, "L2"): 3.5,
+            (t4, "L2"): 8.0,
+            (t1, "L3"): 0.2,
+            (t2, "L3"): 0.8,
+            (t3, "L3"): 2.5,
+            (t4, "L3"): 5.0,
+            (t1, "L4"): 0.1,
+            (t2, "L4"): 0.5,
+            (t3, "L4"): 1.5,
+            (t4, "L4"): 4.0,
         }
         self.paytable = self.convert_range_table(pay_group)
 
@@ -190,20 +190,14 @@ class GameConfig(Config):
                         },
                     ),
                     Distribution(
-                        criteria="0",
-                        quota=0.3,
-                        win_criteria=0.0,
+                        criteria="freegame",
+                        quota=0.1,
                         conditions={
-                            "reel_weights": {self.freegame_type: {"FR0": 1}},
-                            "force_wincap": False,
-                            "force_freegame": True,
-                        },
-                    ),
-                    Distribution(
-                        criteria="basegame",
-                        quota=0.699,
-                        conditions={
-                            "reel_weights": {self.freegame_type: {"FR0": 1}},
+                            "reel_weights": {
+                                self.basegame_type: {"BR0": 1},
+                                self.freegame_type: {"FR0": 1},
+                            },
+                            "scatter_triggers": {4: 5, 5: 1},
                             "force_wincap": False,
                             "force_freegame": True,
                         },

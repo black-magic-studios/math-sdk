@@ -1,7 +1,10 @@
+"""
+Module for executing the Rust optimization program.
+"""
 import json
-import toml
-import subprocess
 import os
+import subprocess
+import toml
 from src.config.paths import PATH_TO_GAMES, SETUP_PATH, OPTIMIZATION_PATH, PROJECT_PATH
 
 
@@ -19,7 +22,9 @@ class OptimizationExecution:
     def run_opt_single_mode(game_config, mode, threads):
         """Create setup txt file for a single mode and run Rust executable binary."""
         os.chdir(PROJECT_PATH)
-        filename = os.path.join(PATH_TO_GAMES, game_config.game_id, "library", "configs", "math_config.json")
+        filename = os.path.join(
+            PATH_TO_GAMES, game_config.game_id, "library", "configs", "math_config.json"
+        )
         opt_config = OptimizationExecution.load_math_config(filename)
 
         opt_config = game_config.opt_params

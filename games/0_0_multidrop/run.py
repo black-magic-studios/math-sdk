@@ -1,15 +1,5 @@
-"""Main file for generating results for sample ways-pay game."""
+"""Main file for generating results for multidrop game."""
 
-import sys
-import os
-
-# Add workspace root to sys.path
-current_dir = os.path.dirname(os.path.abspath(__file__))
-workspace_root = os.path.abspath(os.path.join(current_dir, "..", ".."))
-if workspace_root not in sys.path:
-    sys.path.insert(0, workspace_root)
-
-# pylint: disable=wrong-import-position
 from gamestate import GameState
 from game_config import GameConfig
 from game_optimization import OptimizationSetup
@@ -21,15 +11,15 @@ from src.write_data.write_configs import generate_configs
 
 if __name__ == "__main__":
 
-    NUM_THREADS = 10
-    RUST_THREADS = 20
-    BATCHING_SIZE = 50000
-    COMPRESSION = False
-    PROFILING = False
+    num_threads = 10
+    rust_threads = 20
+    batching_size = 50000
+    compression = True
+    profiling = False
 
     num_sim_args = {
-        "base": int(100),
-        "bonus": int(100),
+        "base": int(10000),
+        "bonus": int(10000),
     }
 
     run_conditions = {
@@ -50,16 +40,16 @@ if __name__ == "__main__":
             gamestate,
             config,
             num_sim_args,
-            BATCHING_SIZE,
-            NUM_THREADS,
-            COMPRESSION,
-            PROFILING,
+            batching_size,
+            num_threads,
+            compression,
+            profiling,
         )
 
     generate_configs(gamestate)
 
     if run_conditions["run_optimization"]:
-        OptimizationExecution().run_all_modes(config, target_modes, RUST_THREADS)
+        OptimizationExecution().run_all_modes(config, target_modes, rust_threads)
         generate_configs(gamestate)
 
     if run_conditions["run_analysis"]:
